@@ -33,6 +33,5 @@ jobs:
           minimum-coverage: 70
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # working-directory: apps/my-first-app
           update-comment: true
 

@@ -3,6 +3,9 @@ export interface Story {
   text?: string
 }
 
+/**
+ * Totally unnecessary docstring.
+ */
 export function storySorter(a: Story, b: Story) {
   if (a.id < b.id) {
     return -1
