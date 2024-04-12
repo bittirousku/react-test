@@ -18,11 +18,21 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - run: npm ci
+      - name: install
+        run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: ArtiomTr/jest-coverage-report-action@v2
+      - name: run tests
+        run: npm test
+      - name: Set up Lcov
+        run: sudo apt-get -y install lcov
+      - name: Generate report from lcov
+        uses: zgosalvez/github-actions-report-lcov@v3
         with:
-          test-script: npx jest --ci --json --coverage --testLocationInResults --outputFile=report.json
-          base-coverage-file: report.json
-          # annotations: none
+          coverage-files: coverage/lcov.info
+          minimum-coverage: 70
+          artifact-name: code-coverage-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # working-directory: apps/my-first-app
+          update-comment: true
+
