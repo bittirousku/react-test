@@ -19,11 +19,13 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: run tests
         run: npm test
-      - name: Upload artifacts
+      - name: Upload lcov and junit
         uses: actions/upload-artifact@v4
         with:
-          name: lcov.info
-          path: coverage/lcov.info
+          name: report-artifacts
+          path: |
+            coverage/lcov.info
+            junit.xml
 
   report:
     permissions:
@@ -38,15 +40,23 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: lcov.info
+          name: report-artifacts
+      # lcov test report action
       - name: Set up Lcov
         run: sudo apt-get -y install lcov
       - name: Generate report from lcov
         uses: zgosalvez/github-actions-report-lcov@v3
         with:
-          coverage-files: lcov.info
+          coverage-files: coverage/lcov.info
           minimum-coverage: 70
           artifact-name: coverage-html-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
-
+      # junit test report summary action
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@75b84e78b3f0aaea7ed7cf8d1d100d7f97f963ec
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: "**/junit.xml"
